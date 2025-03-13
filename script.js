@@ -1,55 +1,31 @@
-// Import WalletConnect
-const WalletConnectProvider = window.WalletConnectProvider?.default || window.WalletConnectProvider;
+import WalletConnectProvider from "@walletconnect/web3-provider";
+import Web3 from "web3";
 
-// Connect Wallet Function
+let provider;
+let web3;
+
 async function connectWallet() {
     try {
-        const provider = new WalletConnectProvider({
-            rpc: { 195: "https://api.trongrid.io" } // Tron Network RPC
+        provider = new WalletConnectProvider({
+            rpc: {
+                195: "https://api.trongrid.io" // Tron RPC
+            }
         });
 
         await provider.enable();
-        window.web3 = new Web3(provider);
-        alert("Wallet Connected!");
+        web3 = new Web3(provider);
+
+        // Tron-Specific Account Fetching
+        if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
+            alert("Wallet Connected: " + window.tronWeb.defaultAddress.base58);
+        } else {
+            alert("Connected, but no Tron address found.");
+        }
     } catch (error) {
         console.error("Wallet connection failed", error);
         alert("Failed to connect wallet. Please try again.");
     }
 }
 
-// Add Token Function
-async function addUSDTToken() {
-    if (!window.web3) {
-        alert("Please connect your wallet first!");
-        return;
-    }
-
-    const tokenDetails = {
-        type: "TRC20",
-        contract: "TGkxzkDKyMeq2T7edKnyjZoFypyzjkkssq",
-        symbol: "USDT",
-        decimals: 6
-    };
-
-    try {
-        await window.ethereum.request({
-            method: "wallet_watchAsset",
-            params: {
-                type: "TRC20",
-                options: {
-                    address: tokenDetails.contract,
-                    symbol: tokenDetails.symbol,
-                    decimals: tokenDetails.decimals
-                }
-            }
-        });
-        alert("USDT (TRC20) Added to Trust Wallet!");
-    } catch (error) {
-        console.error(error);
-        alert("Failed to add token.");
-    }
-}
-
-// Button Event Listeners
+// Add Event Listener to Button
 document.getElementById("connectWallet").addEventListener("click", connectWallet);
-document.getElementById("addToken").addEventListener("click", addUSDTToken);
