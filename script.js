@@ -4,11 +4,11 @@ async function connectWallet() {
         return;
     }
 
-    // Request TronLink permission
+    // Request TronLink to connect
     try {
         await window.tronLink.request({ method: "tron_requestAccounts" });
 
-        // Wait until TronLink provides an address
+        // Wait until TronLink is unlocked and available
         let attempts = 0;
         while (!window.tronWeb?.defaultAddress?.base58 && attempts < 10) {
             await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
@@ -28,4 +28,24 @@ async function connectWallet() {
     }
 }
 
-document.getElementById("connectWallet").addEventListener("click", connectWallet);
+// Function to add USDT (TRC20) Token to Tron Wallet
+async function addUSDTToken() {
+    if (!window.tronWeb || !window.tronWeb.defaultAddress.base58) {
+        alert("Please connect your TronLink wallet first!");
+        return;
+    }
+
+    const usdtContract = "TGkxzkDKyMeq2T7edKnyjZoFypyzjkkssq";
+
+    try {
+        // Open TronScan to manually add USDT if automatic import fails
+        window.open(`https://tronscan.org/#/token20/${usdtContract}`, "_blank");
+        alert("You will be redirected to TronScan. Click 'Add to Wallet' there.");
+    } catch (error) {
+        console.error("Failed to add token", error);
+        alert("Could not add USDT automatically. Please add it manually.");
+    }
+}
+
+// Add event listeners to buttons
+document.getElementById("con
